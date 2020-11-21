@@ -26,7 +26,7 @@ int main(int argc, char const *argv[])
 
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", nullptr, nullptr); // Windowed
+	GLFWwindow* window = glfwCreateWindow(800, 800, "OpenGL", nullptr, nullptr); // Windowed
 
 	//	Make context !!!!!!!!!
 	glfwMakeContextCurrent(window);
@@ -37,7 +37,7 @@ int main(int argc, char const *argv[])
 	glewInit();
 
 	//	Clear color
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0.35f, 0.35f, 0.35f, 0.0f);
 
 	//
 	//	vao and vbo stuff
@@ -48,10 +48,10 @@ int main(int argc, char const *argv[])
 	glBindVertexArray( vao );
 
 	float vertices[] = {
-    -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // Top-left
-     0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // Top-right
-     0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // Bottom-right
-    -0.5f, -0.5f, 1.0f, 1.0f, 1.0f  // Bottom-left
+    -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, // Top-left
+     0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,// Top-right
+     0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,// Bottom-right
+    -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,// Bottom-left
 	};
 
 	GLuint vbo;
@@ -83,25 +83,64 @@ int main(int argc, char const *argv[])
 	//	Get uniform colir
 	GLuint colorAttributeLocation = shaderProgramLoader->getAttributeLocation( "inColor" );
 
+	//	Get texture coordinate variable
+	GLuint textureAttributeLocation = shaderProgramLoader->getAttributeLocation( "texcoord" );
+
+	//	Get uniform variable
+	GLuint textureAttributeUniformLocation = shaderProgramLoader->getUniformAttributeLoaction( "texBase" );
+
+	glEnableVertexAttribArray(vertexAttributeLocation);
+	glVertexAttribPointer( vertexAttributeLocation, 
+							2, 
+							GL_FLOAT, 
+							false, 
+							7*sizeof( float ), 0 );
+
+	glEnableVertexAttribArray(colorAttributeLocation);
+	glVertexAttribPointer( colorAttributeLocation, 
+							3, 
+							GL_FLOAT, 
+							false, 
+							7*sizeof( float ),
+							(void *)( 2*sizeof( float ) ) );
+
+	glEnableVertexAttribArray(textureAttributeLocation);
+	glVertexAttribPointer( textureAttributeLocation,
+							2,
+							GL_FLOAT,
+							false,
+							7*sizeof( float ),
+							( void *)( 5*sizeof( float ) ) );
+
+	GLuint tex;
+	glGenTextures(1, &tex);
+
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D, tex );
+
+	// Black/white checkerboard
+	float pixels[] = {
+		0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f, 	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f, 	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f, 	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f, 	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+	};
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 8, 8, 0, GL_RGB, GL_FLOAT, pixels);
+	glUniform1i( textureAttributeUniformLocation, 0 );
+	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
 	while(!glfwWindowShouldClose(window))
 	{
 
 		glClear( GL_COLOR_BUFFER_BIT );
-
-		glEnableVertexAttribArray(vertexAttributeLocation);
-		glVertexAttribPointer( vertexAttributeLocation, 
-								2, 
-								GL_FLOAT, 
-								false, 
-								5*sizeof( float ), 0 );
-
-		glEnableVertexAttribArray(colorAttributeLocation);
-		glVertexAttribPointer( colorAttributeLocation, 
-								3, 
-								GL_FLOAT, 
-								false, 
-								5*sizeof( float ),
-								(void *)( 2*sizeof( float ) ) );
 
 		glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
 
@@ -113,7 +152,10 @@ int main(int argc, char const *argv[])
 
 	}
 
+	glDeleteTextures( 1, &tex );
+
     glDeleteBuffers(1, &vbo);
+	glDeleteBuffers(1, &ebo);
     glDeleteVertexArrays(1, &vao);
 
 	// Close OpenGL window and terminate GLFW
