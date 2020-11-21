@@ -3,11 +3,16 @@
 // Input vertex data, different for all executions of this shader.
 
 in vec3 vertex;
+in vec3 inColor;
+
+out vec3 outColor;
 
 void main(){
 
     gl_Position.xyz = vertex;
     gl_Position.w = 1.0;
+
+    outColor = inColor;
 
 }
 

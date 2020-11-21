@@ -4,17 +4,13 @@
 
 #include <memory>
 
-#include <string>
-#include <fstream>
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <GL/glxew.h>
 
 #include "include/ShaderProgramLoader.h"
 
-#define FRAGMENT std::string( "Triangle.fragmentshader" )
-#define VERTEX std::string( "Triangle.vertexshader" )
+#define FRAGMENT std::string( "./shader_program/Triangle.fragmentshader" )
+#define VERTEX std::string( "./shader_program/Triangle.vertexshader" )
 
 
 int main(int argc, char const *argv[])
@@ -51,16 +47,26 @@ int main(int argc, char const *argv[])
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray( vao );
 
-	float vertices[] = { 0.0f,  0.5f, 0.0f, // Vertex 1 (X, Y)
-							0.5f, -0.5f, 0.0f, // Vertex 2 (X, Y)
-							-0.5f, -0.5f, 0.0f,  // Vertex 3 (X, Y)
-						};
+	float vertices[] = {
+    -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // Top-left
+     0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // Top-right
+     0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // Bottom-right
+    -0.5f, -0.5f, 1.0f, 1.0f, 1.0f  // Bottom-left
+	};
 
 	GLuint vbo;
 	glGenBuffers(1, &vbo); // Generate 1 buffer
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+	GLuint elements[] = { 0, 1, 2,
+							2, 3, 0 };
+	
+	GLuint ebo;
+	glGenBuffers( 1, &ebo );
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ebo );
+	glBufferData( GL_ELEMENT_ARRAY_BUFFER, 
+					sizeof( elements ), elements, GL_STATIC_DRAW );
 
 	//	Shader stuff
 	//	Initial shader program object
@@ -72,7 +78,10 @@ int main(int argc, char const *argv[])
 	shaderProgramLoader->useProgram();
 
 	//	Get vertex attribute location
-	GLint vertexAttributeLocation = shaderProgramLoader->getAttributeLocation( "vertex" );
+	GLuint vertexAttributeLocation = shaderProgramLoader->getAttributeLocation( "vertex" );
+
+	//	Get uniform colir
+	GLuint colorAttributeLocation = shaderProgramLoader->getAttributeLocation( "inColor" );
 
 	while(!glfwWindowShouldClose(window))
 	{
@@ -81,12 +90,20 @@ int main(int argc, char const *argv[])
 
 		glEnableVertexAttribArray(vertexAttributeLocation);
 		glVertexAttribPointer( vertexAttributeLocation, 
+								2, 
+								GL_FLOAT, 
+								false, 
+								5*sizeof( float ), 0 );
+
+		glEnableVertexAttribArray(colorAttributeLocation);
+		glVertexAttribPointer( colorAttributeLocation, 
 								3, 
 								GL_FLOAT, 
 								false, 
-								0, 0 );
+								5*sizeof( float ),
+								(void *)( 2*sizeof( float ) ) );
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

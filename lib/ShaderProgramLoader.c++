@@ -58,6 +58,11 @@ GLuint ShaderProgramLoader::getAttributeLocation( std::string attributeName )
 	return glGetAttribLocation( this->shaderProgram, attributeName.c_str() );
 }
 
+GLuint ShaderProgramLoader::getUniformAttributeLoaction( std::string attributeName )
+{
+	return glGetUniformLocation( this->shaderProgram, attributeName.c_str() );
+}
+
 std::string ShaderProgramLoader::readShaderSourceFile( std::string shaderFile )
 {
 	std::cout << "Read File shader = " << shaderFile << std::endl;
