@@ -12,6 +12,55 @@
 #define FRAGMENT std::string( "./shader_program/Triangle.fragmentshader" )
 #define VERTEX std::string( "./shader_program/Triangle.vertexshader" )
 
+//	Default checker board for testing
+float checkerBoard[] = {
+		0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f, 	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f, 	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f, 	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f, 	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+	};
+
+
+void generateSquarecheckerboard( int dim, int numBlock, float* checkerBoard_ret )
+{
+	//  calculate number to loop
+	int numLoop = dim*dim*3;
+
+	//  Initial color value
+	float colorValue = 1.0f;
+
+	//	Frequency to check value
+	int freq = dim / numBlock;
+
+	//	Step to change
+	int stepToChange = freq * dim;
+
+	//  Loop to set value
+	for( int i = 0; i < numLoop; i++ )
+	{
+		//	Loop to put color 
+		for( int f = 0; f < freq; freq++ )
+		{
+			//	Loop all chanal to single pixel
+			for( int c = 0; c < 3; c++ )
+			{
+				checkerBoard_ret[ i ] = colorValue;
+				std::cout << colorValue << "	";
+			}	
+		}
+
+		if( i == stepToChange - 1 )
+			continue;
+			
+		colorValue = 1.0f - colorValue;
+	}
+
+}
+
 
 int main(int argc, char const *argv[])
 {
@@ -118,24 +167,25 @@ int main(int argc, char const *argv[])
 	glActiveTexture( GL_TEXTURE0 );
 	glBindTexture( GL_TEXTURE_2D, tex );
 
-	// Black/white checkerboard
-	float pixels[] = {
-		0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f, 	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,
-		0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,
-		0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f, 	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,
-		0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f, 	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f, 	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-	};
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 8, 8, 0, GL_RGB, GL_FLOAT, pixels);
+	float imageData[256][256][3]; // Texture image data
+	float value;
+	for (int row = 0; row < 256; row++) {
+		for (int col = 0; col < 256; col++) {
+			// Each cell is 8x8, value is 0 or 255 (black or white)
+			value = (((row & 0x08) == 0) ^ ((col & 0x08) == 0)) * 1.0;
+			imageData[row][col][0] = value;
+			imageData[row][col][1] = value;
+			imageData[row][col][2] = value;
+		}
+	}
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_FLOAT, imageData);
 	glUniform1i( textureAttributeUniformLocation, 0 );
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	while(!glfwWindowShouldClose(window))
 	{
