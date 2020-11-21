@@ -36,7 +36,14 @@ class ShaderProgramLoader
 
 	public:
 
+		////////////////////////////////////////////////////////////////////////
+		//
+		//	Public function to get all attribute which defined in shader program
+		//
+
 		GLuint getAttributeLocation( std::string attributeName );
+
+		GLuint getUniformAttributeLoaction( std::string attributName );
 
 	protected:
 		//
