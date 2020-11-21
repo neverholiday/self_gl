@@ -4,17 +4,13 @@
 
 #include <memory>
 
-#include <string>
-#include <fstream>
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <GL/glxew.h>
 
 #include "include/ShaderProgramLoader.h"
 
-#define FRAGMENT std::string( "Triangle.fragmentshader" )
-#define VERTEX std::string( "Triangle.vertexshader" )
+#define FRAGMENT std::string( "shader_program/Triangle.fragmentshader" )
+#define VERTEX std::string( "shader_program/Triangle.vertexshader" )
 
 
 int main(int argc, char const *argv[])
