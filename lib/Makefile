@@ -8,4 +8,7 @@ libShaderProgramLoader.so: ShaderProgramLoader.o
 	g++ -std=c++17 -Wall -O3 -shared ShaderProgramLoader.o -lGLEW -o libShaderProgramLoader.so
 
 clean:
-	rm -v libShaderProgramLoader.so ShaderProgramLoader.o
+	rm -v ShaderProgramLoader.o libShaderProgramLoader.so
+
+.PHONY: clean
+.SILENT: clean
