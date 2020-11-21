@@ -172,7 +172,7 @@ int main(int argc, char const *argv[])
 	for (int row = 0; row < 256; row++) {
 		for (int col = 0; col < 256; col++) {
 			// Each cell is 8x8, value is 0 or 255 (black or white)
-			value = (((row & 0x08) == 0) ^ ((col & 0x08) == 0)) * 1.0;
+			value = (((row & 32) == 0) ^ ((col & 32) == 0)) * 1.0;
 			imageData[row][col][0] = value;
 			imageData[row][col][1] = value;
 			imageData[row][col][2] = value;
