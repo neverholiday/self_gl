@@ -179,15 +179,15 @@ int main(int argc, char const *argv[])
 	shaderProgramLoader->useProgram();
 
 	//	Get vertex attribute location
-	GLint vertexAttribute = shaderProgramLoader->getAttributeLocation( "vertex" );
+	GLint vertexAttributeLocation = shaderProgramLoader->getAttributeLocation( "vertex" );
 
 	while(!glfwWindowShouldClose(window))
 	{
 
 		glClear( GL_COLOR_BUFFER_BIT );
 
-		glEnableVertexAttribArray(vertexAttribute);
-		glVertexAttribPointer( vertexAttribute, 
+		glEnableVertexAttribArray(vertexAttributeLocation);
+		glVertexAttribPointer( vertexAttributeLocation, 
 								3, 
 								GL_FLOAT, 
 								false, 
