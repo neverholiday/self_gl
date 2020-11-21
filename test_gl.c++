@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <vector>
 
+#include <memory>
+
 #include <string>
 #include <fstream>
 
@@ -25,8 +27,99 @@ class ShaderProgramLoader
 		GLuint fragmentShader;
 
 	public:
-		ShaderProgramLoader();
-		~ShaderProgramLoader();
+		ShaderProgramLoader( )
+		{}
+
+		~ShaderProgramLoader()
+		{
+			std::cout << "Delete program" << std::endl;
+			this->deleteProgram();
+		}
+
+		void useProgram()
+		{
+			glUseProgram( this->shaderProgram );
+		}
+
+		void compileVertexShader( std::string vertexShaderFile )
+		{
+			this->vertexShader = glCreateShader( GL_VERTEX_SHADER );
+			this->compileShader( this->vertexShader, vertexShaderFile );
+		}
+		void compileFragmentShader( std::string fragmentShaderFile )
+		{
+			this->fragmentShader = glCreateShader( GL_FRAGMENT_SHADER );
+			this->compileShader( this->fragmentShader, fragmentShaderFile );
+		}
+
+		void linkProgram()
+		{
+			this->shaderProgram = glCreateProgram();
+			glAttachShader( this->shaderProgram, this->vertexShader );
+			glAttachShader( this->shaderProgram, this->fragmentShader );
+			glLinkProgram( this->shaderProgram );
+
+		}
+
+		void detachShader()
+		{
+			glDetachShader( this->shaderProgram, this->fragmentShader );
+			glDetachShader( this->shaderProgram, this->vertexShader );
+			glDeleteShader( this->fragmentShader );
+			glDeleteShader( this->vertexShader );
+		}
+
+		void deleteProgram()
+		{
+			glDeleteProgram( this->shaderProgram );
+		}
+
+		GLuint getAttributeLocation( std::string attributeName )
+		{
+			return glGetAttribLocation( this->shaderProgram, "vertex" );
+		}
+
+	protected:
+		//
+		//	Function to read shader file to string
+		//
+		std::string readShaderSourceFile( std::string shaderFile )
+		{
+			std::cout << "Read File shader = " << shaderFile << std::endl;
+			std::ifstream shaderStream( shaderFile );
+			std::string shaderSourceString( ( std::istreambuf_iterator<char>( shaderStream ) ),
+											( std::istreambuf_iterator<char>() ) );
+			return shaderSourceString;
+		}
+
+		//
+		//	Function to compile shader from type
+		//
+		void compileShader( GLuint shader, std::string vertexShaderFile )
+		{
+			std::string shaderSourceString = this->readShaderSourceFile( vertexShaderFile );
+
+			const char* shaderSourceString_cstr = shaderSourceString.c_str();
+			glShaderSource( shader, 1, &shaderSourceString_cstr, NULL);
+			glCompileShader( shader );
+
+			GLint statusComplile;
+			glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &statusComplile);
+
+			if ( statusComplile != GL_TRUE )
+			{
+				std::cerr << "this shader is compile error with errors" << std::endl;
+				char buffer[512];
+				glGetShaderInfoLog(shader, 512, NULL, buffer);
+				std::cout << buffer << std::endl;
+
+				return;
+			}
+
+			std::cout << "Done." << std::endl;
+
+		}
+
 
 };
 
@@ -49,24 +142,17 @@ int main(int argc, char const *argv[])
 	//	Make context !!!!!!!!!
 	glfwMakeContextCurrent(window);
 
+
+	//	Initi gl extension for make genBuffer compatible
 	glewExperimental = GL_TRUE;
 	glewInit();
 
+	//	Clear color
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-	
-	std::cout << "File vertex shader = " << VERTEX << std::endl;
-	std::cout << "File fragment shader = " << FRAGMENT << std::endl;
-	std::cout << "Testing draw gl shader" << std::endl;
-
-	std::ifstream vertextStream( VERTEX );
-	std::ifstream fragmentStream( FRAGMENT );
-
-	std::string vertexSourceString( ( std::istreambuf_iterator<char>( vertextStream ) ),
-									( std::istreambuf_iterator<char>() ) );
-	std::string fragmentSourceString( ( std::istreambuf_iterator<char>( fragmentStream ) ),
-										( std::istreambuf_iterator<char>() ) );
-
+	//
+	//	vao and vbo stuff
+	//
 
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
@@ -83,63 +169,29 @@ int main(int argc, char const *argv[])
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 
-
 	//	Shader stuff
-	const char *vertexSourceString_cstr = vertexSourceString.c_str(); 
-	const char *fragmentSourceString_cstr = fragmentSourceString.c_str(); 
-	
-	//	Vertex shader
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexSourceString_cstr, NULL);
-	glCompileShader( vertexShader );
+	//	Initial shader program object
+	std::shared_ptr<ShaderProgramLoader> shaderProgramLoader = std::make_shared<ShaderProgramLoader>();
 
-	GLint statusVertex;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &statusVertex);
+	shaderProgramLoader->compileVertexShader( VERTEX );
+	shaderProgramLoader->compileFragmentShader( FRAGMENT );
+	shaderProgramLoader->linkProgram();
+	shaderProgramLoader->useProgram();
 
-	if ( statusVertex != GL_TRUE )
-	{
-		std::cerr << "vertex shader is compile error" << std::endl;
-		return -1;
-	}
-
-	//	Fragment shader
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentSourceString_cstr, NULL);
-	glCompileShader( fragmentShader );
-
-	GLint statusFragment;
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &statusFragment);
-
-	if ( statusFragment != GL_TRUE )
-	{
-		std::cerr << "fragment shader is compile error" << std::endl;
-		return -1;
-	}
-
-	//	Create program
-	//		and attach to shader to the program
-	GLuint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram( shaderProgram );
-
-
-	//	Get attribute 
-	//		Get attribute 
-	GLint vertexAttribute = glGetAttribLocation(shaderProgram, "vertex");
-
-	std::cout << "Link finish" << std::endl;
+	//	Get vertex attribute location
+	GLint vertexAttribute = shaderProgramLoader->getAttributeLocation( "vertex" );
 
 	while(!glfwWindowShouldClose(window))
 	{
 
 		glClear( GL_COLOR_BUFFER_BIT );
 
-		//	Use the shader program
-		glUseProgram( shaderProgram );
-
 		glEnableVertexAttribArray(vertexAttribute);
-		glVertexAttribPointer( vertexAttribute, 3, GL_FLOAT, false, 0, 0 );
+		glVertexAttribPointer( vertexAttribute, 
+								3, 
+								GL_FLOAT, 
+								false, 
+								0, 0 );
 
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -151,16 +203,11 @@ int main(int argc, char const *argv[])
 
 	}
 
-	glDeleteProgram(shaderProgram);
-    glDeleteShader(fragmentShader);
-    glDeleteShader(vertexShader);
-
     glDeleteBuffers(1, &vbo);
     glDeleteVertexArrays(1, &vao);
 
 	// Close OpenGL window and terminate GLFW
 	glfwTerminate();
-
 
 	return 0;
 }
