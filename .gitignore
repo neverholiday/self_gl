@@ -1,2 +1,4 @@
 test_gl
 .vscode
+*.o
+*.so
