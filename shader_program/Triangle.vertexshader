@@ -4,8 +4,10 @@
 
 in vec3 vertex;
 in vec3 inColor;
+in vec2 texcoord;
 
 out vec3 outColor;
+out vec2 outTexcoord;
 
 void main(){
 
@@ -13,6 +15,7 @@ void main(){
     gl_Position.w = 1.0;
 
     outColor = inColor;
+    outTexcoord = texcoord;
 
 }
 
