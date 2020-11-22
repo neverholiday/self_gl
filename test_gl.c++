@@ -8,9 +8,12 @@
 #include <GLFW/glfw3.h>
 
 #include "include/ShaderProgramLoader.h"
+#include "include/SimpleCheckerboardGenerator.h"
 
 #define FRAGMENT std::string( "./shader_program/Triangle.fragmentshader" )
 #define VERTEX std::string( "./shader_program/Triangle.vertexshader" )
+
+#define DIMENSION 512
 
 //	Default checker board for testing
 float checkerBoard[] = {
@@ -23,44 +26,6 @@ float checkerBoard[] = {
 		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f, 	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
 		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
 	};
-
-
-void generateSquarecheckerboard( int dim, int numBlock, float* checkerBoard_ret )
-{
-	//  calculate number to loop
-	int numLoop = dim*dim*3;
-
-	//  Initial color value
-	float colorValue = 1.0f;
-
-	//	Frequency to check value
-	int freq = dim / numBlock;
-
-	//	Step to change
-	int stepToChange = freq * dim;
-
-	//  Loop to set value
-	for( int i = 0; i < numLoop; i++ )
-	{
-		//	Loop to put color 
-		for( int f = 0; f < freq; freq++ )
-		{
-			//	Loop all chanal to single pixel
-			for( int c = 0; c < 3; c++ )
-			{
-				checkerBoard_ret[ i ] = colorValue;
-				std::cout << colorValue << "	";
-			}	
-		}
-
-		if( i == stepToChange - 1 )
-			continue;
-			
-		colorValue = 1.0f - colorValue;
-	}
-
-}
-
 
 int main(int argc, char const *argv[])
 {
@@ -167,19 +132,12 @@ int main(int argc, char const *argv[])
 	glActiveTexture( GL_TEXTURE0 );
 	glBindTexture( GL_TEXTURE_2D, tex );
 
-	float imageData[256][256][3]; // Texture image data
-	float value;
-	for (int row = 0; row < 256; row++) {
-		for (int col = 0; col < 256; col++) {
-			// Each cell is 8x8, value is 0 or 255 (black or white)
-			value = (((row & 32) == 0) ^ ((col & 32) == 0)) * 1.0;
-			imageData[row][col][0] = value;
-			imageData[row][col][1] = value;
-			imageData[row][col][2] = value;
-		}
-	}
+	int dim = DIMENSION;
+	float* imageData = new float[dim*dim*3](); // Texture image data
+	
+	SimpleCheckerboardGenerator::generateSquarecheckerboard( dim, imageData );
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 256, 0, GL_RGB, GL_FLOAT, imageData);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, dim, dim, 0, GL_RGB, GL_FLOAT, imageData);
 	glUniform1i( textureAttributeUniformLocation, 0 );
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -201,7 +159,7 @@ int main(int argc, char const *argv[])
     		glfwSetWindowShouldClose(window, GL_TRUE);
 
 	}
-
+	delete imageData;
 	glDeleteTextures( 1, &tex );
 
     glDeleteBuffers(1, &vbo);
