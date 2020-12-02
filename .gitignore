@@ -1,4 +1,5 @@
 test_gl
+test_math
 .vscode
 *.o
 *.so
