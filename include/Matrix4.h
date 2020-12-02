@@ -17,6 +17,9 @@ namespace myMath
 			double getValue( int rowIdx, int colIdx );
 			double getValue( int idx );
 
+			int getNumRow();
+			int getNumColumn();
+
 			double* getData();
 
 		public:

@@ -41,6 +41,12 @@ double myMath::Matrix4::getValue( int idx )
 	return this->values.at( idx );
 }
 
+int myMath::Matrix4::getNumRow()
+{ return this->numRow; }
+
+int myMath::Matrix4::getNumColumn()
+{ return this->numColumn; }
+
 double* myMath::Matrix4::getData()
 {
 	return this->values.data();
