@@ -5,6 +5,7 @@
 int main(int argc, char const *argv[])
 {
     myMath::Matrix4 matTest;
+    myMath::Matrix4 matTest2;
 
 
     std::cout << "Mat(4x4) = " << std::endl;
@@ -22,6 +23,14 @@ int main(int argc, char const *argv[])
 
     matTest.printMatrix();
 
+    matTest.setValue( 3, 3, 0.999 );
+    double* matPtr = matTest.getData();
+
+    std::cout << *(matPtr + 15) << std::endl;
+    matTest.printMatrix();
+
+    myMath::Matrix4 answer = matTest.add(matTest2);
+    answer.printMatrix();
 
     return 0;
 }
