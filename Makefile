@@ -4,7 +4,7 @@ libSubdir:
 	make -C lib
 
 test_gl: test_gl.c++
-	g++ test_gl.c++ --std=c++17 -Wall -O3 -Llib -lShaderProgramLoader -lSimpleCheckerboardGenerator -lGL -lGLEW -lglfw -o test_gl
+	g++ test_gl.c++ --std=c++17 -Wall -O3 -Llib -lGraphicEngines -lImageConstructor -lGL -lGLEW -lglfw -o test_gl
 
 clean:
 	make -C lib clean
