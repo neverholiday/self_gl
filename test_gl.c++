@@ -4,6 +4,8 @@
 
 #include <memory>
 
+#include <chrono>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -15,17 +17,7 @@
 
 #define DIMENSION 512
 
-//	Default checker board for testing
-float checkerBoard[] = {
-		0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f, 	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,
-		0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,
-		0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f, 	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,
-		0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f, 	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f, 	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-	};
+typedef std::chrono::system_clock::time_point timePoint_chrono;
 
 int main(int argc, char const *argv[])
 {
@@ -134,10 +126,11 @@ int main(int argc, char const *argv[])
 
 	int dim = DIMENSION;
 	float* imageData = new float[dim*dim*3](); // Texture image data
+	float* imageData_2 = new float[dim*dim*3](); // Texture image data
 	
 	SimpleCheckerboardGenerator::generateSquarecheckerboard( dim, imageData );
+	SimpleCheckerboardGenerator::generateSquarecheckerboard( dim, imageData_2, 16 );
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, dim, dim, 0, GL_RGB, GL_FLOAT, imageData);
 	glUniform1i( textureAttributeUniformLocation, 0 );
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -145,10 +138,20 @@ int main(int argc, char const *argv[])
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	int i = 0;
+
 	while(!glfwWindowShouldClose(window))
 	{
 
+		timePoint_chrono first = std::chrono::system_clock::now();
+
 		glClear( GL_COLOR_BUFFER_BIT );
+
+		if ( i % 2 == 0 ) 
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, dim, dim, 0, GL_RGB, GL_FLOAT, imageData);
+		else
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, dim, dim, 0, GL_RGB, GL_FLOAT, imageData_2);
+
 
 		glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
 
@@ -157,9 +160,20 @@ int main(int argc, char const *argv[])
 
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     		glfwSetWindowShouldClose(window, GL_TRUE);
+		
+		timePoint_chrono last = std::chrono::system_clock::now();
+		
+		auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(last - first);
+
+		std::cout << "fps : " << double( 1000 ) / double( milliseconds.count() ) << std::endl;
+
+		++i;
 
 	}
+	
 	delete imageData;
+	delete imageData_2;
+
 	glDeleteTextures( 1, &tex );
 
     glDeleteBuffers(1, &vbo);

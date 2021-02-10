@@ -32,5 +32,11 @@ int main(int argc, char const *argv[])
     myMath::Matrix4 answer = matTest.add(matTest2);
     answer.printMatrix();
 
+    myMath::Matrix4 eiei( answer );
+
+    std::cout << std::endl << " eiei " << std::endl;
+
+    eiei.printMatrix();
+
     return 0;
 }

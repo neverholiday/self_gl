@@ -2,7 +2,8 @@
 
 
 /*static*/ 
-void SimpleCheckerboardGenerator::generateSquarecheckerboard( int dim, float* checkerBoard_ret )
+void SimpleCheckerboardGenerator::generateSquarecheckerboard( int dim, float* checkerBoard_ret, 
+																int numChecker /* = 8*/ )
 {
 
 	//
@@ -13,9 +14,8 @@ void SimpleCheckerboardGenerator::generateSquarecheckerboard( int dim, float* ch
 	//	IMPROVE ME : Currently, I support dim only power of two
 	//
 
-
 	//	We generate only 8 blocks
-	int divider = dim/8;
+	int divider = dim/numChecker;
 
 	float value = 0.0f;
 	for (int row = 0; row < dim; row++) {
