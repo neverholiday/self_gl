@@ -12,12 +12,20 @@
 #include "include/ShaderProgramLoader.h"
 #include "include/SimpleCheckerboardGenerator.h"
 
-#define FRAGMENT std::string( "./shader_program/Triangle.fragmentshader" )
-#define VERTEX std::string( "./shader_program/Triangle.vertexshader" )
+#define FRAGMENT std::string( "/home/neverholiday/work/test_work/self_gl/shader_program/Triangle.fragmentshader" )
+#define VERTEX std::string( "/home/neverholiday/work/test_work/self_gl/shader_program/Triangle.vertexshader" )
 
 #define DIMENSION 512
 
-typedef std::chrono::system_clock::time_point timePoint_chrono;
+/////////////////////////////////////////////////
+//
+//	For debug flag
+//
+// #define DEBUG_FPS
+
+#ifdef DEBUG_FPS
+	typedef std::chrono::system_clock::time_point timePoint_chrono;
+#endif
 
 int main(int argc, char const *argv[])
 {
@@ -126,10 +134,8 @@ int main(int argc, char const *argv[])
 
 	int dim = DIMENSION;
 	float* imageData = new float[dim*dim*3](); // Texture image data
-	float* imageData_2 = new float[dim*dim*3](); // Texture image data
 	
 	SimpleCheckerboardGenerator::generateSquarecheckerboard( dim, imageData );
-	SimpleCheckerboardGenerator::generateSquarecheckerboard( dim, imageData_2, 16 );
 
 	glUniform1i( textureAttributeUniformLocation, 0 );
 	
@@ -138,20 +144,16 @@ int main(int argc, char const *argv[])
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	int i = 0;
-
 	while(!glfwWindowShouldClose(window))
 	{
 
+#ifdef DEBUG_FPS
 		timePoint_chrono first = std::chrono::system_clock::now();
+#endif
 
 		glClear( GL_COLOR_BUFFER_BIT );
 
-		if ( i % 2 == 0 ) 
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, dim, dim, 0, GL_RGB, GL_FLOAT, imageData);
-		else
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, dim, dim, 0, GL_RGB, GL_FLOAT, imageData_2);
-
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, dim, dim, 0, GL_RGB, GL_FLOAT, imageData);
 
 		glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
 
@@ -161,18 +163,15 @@ int main(int argc, char const *argv[])
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     		glfwSetWindowShouldClose(window, GL_TRUE);
 		
-		timePoint_chrono last = std::chrono::system_clock::now();
-		
+#ifdef DEBUG_FPS
+		timePoint_chrono last = std::chrono::system_clock::now();	
 		auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(last - first);
-
 		std::cout << "fps : " << double( 1000 ) / double( milliseconds.count() ) << std::endl;
-
-		++i;
+#endif
 
 	}
 	
 	delete imageData;
-	delete imageData_2;
 
 	glDeleteTextures( 1, &tex );
 

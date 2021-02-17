@@ -3,3 +3,4 @@ test_math
 .vscode
 *.o
 *.so
+build/
